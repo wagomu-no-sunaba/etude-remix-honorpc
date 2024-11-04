@@ -1,4 +1,7 @@
 import type { MetaFunction } from "@remix-run/node";
+import { hc } from "hono/client";
+import type { AppType } from "server";
+import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,7 +10,14 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const clientLoader = async() => {
+  const client = hc<AppType>("/");
+  const res = await client.api.$get();
+  return await res.json();
+};
+
 export default function Index() {
+  const { message } = useLoaderData<typeof clientLoader>();
   return (
     <div className="flex h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-16">
@@ -15,6 +25,7 @@ export default function Index() {
           <h1 className="leading text-2xl font-bold text-gray-800 dark:text-gray-100">
             Welcome to <span className="sr-only">Remix</span>
           </h1>
+          <h2>{message}</h2>
           <div className="h-[144px] w-[434px]">
             <img
               src="/logo-light.png"
